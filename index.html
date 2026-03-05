@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aces — Photo Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-hover: #1a1a1a;
+  --border: #222;
+  --text: #f0f0f0;
+  --text-secondary: #888;
+  --text-muted: #555;
+  --accent: #8b5cf6;
+  --accent-dim: rgba(139,92,246,0.15);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh; }
+img { display:block; }
+
+/* ===== PASSWORD GATE ===== */
+.gate { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+.gate-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:48px 40px; max-width:380px; width:100%; text-align:center; }
+.gate-logo { font-size:28px; font-weight:700; letter-spacing:2px; margin-bottom:6px; }
+.gate-sub { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
+.gate-input { width:100%; padding:14px 16px; background:#0d0d0d; border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:15px; outline:none; transition:border-color 0.2s; }
+.gate-input:focus { border-color:var(--accent); }
+.gate-input::placeholder { color:var(--text-muted); }
+.gate-btn { width:100%; padding:14px; margin-top:12px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; transition:opacity 0.2s; }
+.gate-btn:hover { opacity:0.9; }
+.gate-error { color:#ef4444; font-size:12px; margin-top:10px; display:none; }
+
+/* ===== MAIN APP ===== */
+.app { display:none; }
+.app.active { display:block; }
+
+/* Header */
+.header { padding:28px 24px 0; max-width:1200px; margin:0 auto; }
+.header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.brand { font-size:22px; font-weight:700; letter-spacing:1.5px; }
+.logout-btn { background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-muted); font-size:11px; font-family:inherit; padding:6px 12px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px; }
+.logout-btn:hover { color:var(--text); border-color:var(--text-muted); }
+
+/* Filters */
+.filters { display:flex; gap:8px; flex-wrap:wrap; }
+.filter-pill { padding:8px 18px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-secondary); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; }
+.filter-pill:hover { border-color:var(--text-muted); color:var(--text); }
+.filter-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* Event Grid */
+.events-grid { max-width:1200px; margin:0 auto; padding:28px 24px 60px; display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
+.event-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; cursor:pointer; transition:all 0.25s ease; position:relative; }
+.event-card:hover { transform:translateY(-3px); border-color:#333; box-shadow:0 12px 40px rgba(0,0,0,0.4); }
+.event-cover { width:100%; aspect-ratio:16/10; object-fit:cover; opacity:0; transition:opacity 0.4s ease; }
+.event-cover.loaded { opacity:1; }
+.event-cover-wrap { position:relative; background:var(--surface-hover); width:100%; aspect-ratio:16/10; overflow:hidden; }
+.event-cover-skeleton { position:absolute; inset:0; background:linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.event-info { padding:18px 20px 20px; }
+.event-name { font-size:16px; font-weight:600; margin-bottom:6px; line-height:1.3; }
+.event-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.event-date { font-size:12px; color:var(--text-secondary); }
+.event-city { font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; background:var(--accent-dim); color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; }
+.event-count { font-size:12px; color:var(--text-muted); margin-left:auto; }
+
+/* ===== EVENT DETAIL VIEW ===== */
+.detail { display:none; max-width:1200px; margin:0 auto; padding:0 24px 60px; }
+.detail.active { display:block; }
+.detail-header { padding:28px 0 20px; }
+.back-btn { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-secondary); font-family:inherit; font-size:13px; cursor:pointer; padding:8px 0; transition:color 0.2s; }
+.back-btn:hover { color:var(--text); }
+.back-btn svg { width:16px; height:16px; }
+.detail-title { font-size:26px; font-weight:700; margin:16px 0 8px; }
+.detail-meta { display:flex; gap:16px; flex-wrap:wrap; align-items:center; color:var(--text-secondary); font-size:13px; }
+.detail-meta span { display:flex; align-items:center; gap:5px; }
+
+/* Masonry Grid */
+.masonry { columns:3; column-gap:12px; padding-top:8px; }
+.masonry-item { break-inside:avoid; margin-bottom:12px; border-radius:var(--radius); overflow:hidden; cursor:pointer; position:relative; }
+.masonry-item img { width:100%; display:block; opacity:0; transition:opacity 0.4s ease, transform 0.3s ease; }
+.masonry-item img.loaded { opacity:1; }
+.masonry-item:hover img { transform:scale(1.02); }
+.masonry-placeholder { width:100%; background:var(--surface-hover); border-radius:var(--radius); }
+
+/* ===== LIGHTBOX ===== */
+.lightbox { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.95); align-items:center; justify-content:center; }
+.lightbox.active { display:flex; }
+.lightbox-img { max-width:90vw; max-height:85vh; object-fit:contain; border-radius:4px; user-select:none; }
+.lightbox-close { position:fixed; top:20px; right:24px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; opacity:0.6; transition:opacity 0.2s; z-index:1001; padding:8px; }
+.lightbox-close:hover { opacity:1; }
+.lightbox-nav { position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.08); border:none; color:#fff; width:48px; height:48px; border-radius:50%; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center; opacity:0.5; transition:opacity 0.2s; z-index:1001; }
+.lightbox-nav:hover { opacity:1; background:rgba(255,255,255,0.15); }
+.lightbox-prev { left:20px; }
+.lightbox-next { right:20px; }
+.lightbox-counter { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:13px; font-weight:500; z-index:1001; }
+.lightbox-download { position:fixed; top:20px; left:24px; background:none; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:rgba(255,255,255,0.6); font-size:12px; font-family:inherit; padding:8px 14px; cursor:pointer; transition:all 0.2s; z-index:1001; display:flex; align-items:center; gap:6px; }
+.lightbox-download:hover { color:#fff; border-color:rgba(255,255,255,0.4); }
+
+/* Footer */
+.footer { text-align:center; padding:40px 24px; color:var(--text-muted); font-size:11px; letter-spacing:0.3px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:900px) {
+  .masonry { columns:2; }
+}
+@media (max-width:640px) {
+  .events-grid { grid-template-columns:1fr; padding:20px 16px 60px; }
+  .header { padding:20px 16px 0; }
+  .detail { padding:0 16px 60px; }
+  .masonry { columns:2; column-gap:8px; }
+  .masonry-item { margin-bottom:8px; }
+  .detail-title { font-size:20px; }
+  .gate-card { padding:36px 28px; }
+  .lightbox-nav { width:40px; height:40px; font-size:16px; }
+  .lightbox-prev { left:12px; }
+  .lightbox-next { right:12px; }
+}
+@media (max-width:400px) {
+  .masonry { columns:1; }
+}
+
+/* Fade in animation */
+.fade-in { animation:fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">ACES</div>
+    <div class="gate-sub">Private gallery. Enter password to continue.</div>
+    <input type="password" class="gate-input" id="gatePw" placeholder="Password" autocomplete="off">
+    <button class="gate-btn" id="gateBtn">Enter</button>
+    <div class="gate-error" id="gateErr">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="app">
+
+  <!-- Header + Filters -->
+  <div class="header" id="mainHeader">
+    <div class="header-row">
+      <div class="brand">ACES</div>
+      <button class="logout-btn" id="logoutBtn">Sign Out</button>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-pill active" data-city="all">All</button>
+      <button class="filter-pill" data-city="New York">New York</button>
+      <button class="filter-pill" data-city="San Francisco">San Francisco</button>
+      <button class="filter-pill" data-city="Los Angeles">Los Angeles</button>
+    </div>
+  </div>
+
+  <!-- Event Grid -->
+  <div class="events-grid" id="eventsGrid"></div>
+
+  <!-- Event Detail -->
+  <div class="detail" id="detail">
+    <div class="detail-header">
+      <button class="back-btn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to events
+      </button>
+      <div class="detail-title" id="detailTitle"></div>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+    <div class="masonry" id="masonry"></div>
+  </div>
+
+  <div class="footer">© 2026 Aces. All photos are private and for members only.</div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">&#x2715;</button>
+  <button class="lightbox-download" id="lbDownload">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    Save
+  </button>
+  <button class="lightbox-nav lightbox-prev" id="lbPrev">&#8249;</button>
+  <button class="lightbox-nav lightbox-next" id="lbNext">&#8250;</button>
+  <img class="lightbox-img" id="lbImg" src="" alt="">
+  <div class="lightbox-counter" id="lbCounter"></div>
+</div>
+
+<script>
+// ============================================================
+// GALLERY CONFIG — Update this to add/change events and photos
+// ============================================================
+const GALLERY_CONFIG = {
+  password: 'aces2026',
+  community: 'Aces',
+  events: [
+    {
+      id: 'aces-la-mar27',
+      name: 'LA Dinner: Starting Over',
+      date: '2026-03-27',
+      city: 'Los Angeles',
+      host: 'Karan Wadhera',
+      photographer: 'Abe',
+      coverIndex: 0,
+      photos: [
+        { url: 'https://picsum.photos/seed/la1/800/600' },
+        { url: 'https://picsum.photos/seed/la2/800/1000' },
+        { url: 'https://picsum.photos/seed/la3/900/600' },
+        { url: 'https://picsum.photos/seed/la4/700/900' },
+        { url: 'https://picsum.photos/seed/la5/800/600' },
+        { url: 'https://picsum.photos/seed/la6/600/800' },
+        { url: 'https://picsum.photos/seed/la7/800/600' },
+        { url: 'https://picsum.photos/seed/la8/700/700' },
+        { url: 'https://picsum.photos/seed/la9/800/600' },
+        { url: 'https://picsum.photos/seed/la10/600/900' },
+      ]
+    },
+    {
+      id: 'aces-ny-mar17',
+      name: 'NY Dinner: The Art of the Deal',
+      date: '2026-03-17',
+      city: 'New York',
+      host: 'Jason Shuman',
+      photographer: 'Oren Siddo',
+      coverIndex: 0,
+      photos: [
+        { url: 'https://picsum.photos/seed/ny1/800/600' },
+        { url: 'https://picsum.photos/seed/ny2/700/900' },
+        { url: 'https://picsum.photos/seed/ny3/800/600' },
+        { url: 'https://picsum.photos/seed/ny4/800/1000' },
+        { url: 'https://picsum.photos/seed/ny5/900/600' },
+        { url: 'https://picsum.photos/seed/ny6/800/600' },
+        { url: 'https://picsum.photos/seed/ny7/600/800' },
+        { url: 'https://picsum.photos/seed/ny8/800/600' },
+        { url: 'https://picsum.photos/seed/ny9/700/700' },
+        { url: 'https://picsum.photos/seed/ny10/800/600' },
+        { url: 'https://picsum.photos/seed/ny11/600/900' },
+      ]
+    },
+    {
+      id: 'aces-sf-mar12',
+      name: 'SF Dinner: Learning & Unlearning',
+      date: '2026-03-12',
+      city: 'San Francisco',
+      host: 'Helen Min',
+      photographer: 'TBD',
+      coverIndex: 0,
+      photos: [
+        { url: 'https://picsum.photos/seed/sfm1/800/600' },
+        { url: 'https://picsum.photos/seed/sfm2/800/1000' },
+        { url: 'https://picsum.photos/seed/sfm3/700/600' },
+        { url: 'https://picsum.photos/seed/sfm4/800/600' },
+        { url: 'https://picsum.photos/seed/sfm5/600/800' },
+        { url: 'https://picsum.photos/seed/sfm6/800/600' },
+        { url: 'https://picsum.photos/seed/sfm7/900/700' },
+        { url: 'https://picsum.photos/seed/sfm8/800/600' },
+      ]
+    },
+    {
+      id: 'aces-sf-feb19',
+      name: 'SF Dinner: February Fireside',
+      date: '2026-02-19',
+      city: 'San Francisco',
+      host: 'Alex Revelle',
+      photographer: 'Hannah',
+      coverIndex: 2,
+      photos: [
+        { url: 'https://picsum.photos/seed/feb1/800/600' },
+        { url: 'https://picsum.photos/seed/feb2/600/800' },
+        { url: 'https://picsum.photos/seed/feb3/800/600' },
+        { url: 'https://picsum.photos/seed/feb4/700/900' },
+        { url: 'https://picsum.photos/seed/feb5/800/600' },
+        { url: 'https://picsum.photos/seed/feb6/800/600' },
+        { url: 'https://picsum.photos/seed/feb7/900/600' },
+        { url: 'https://picsum.photos/seed/feb8/800/600' },
+        { url: 'https://picsum.photos/seed/feb9/600/900' },
+        { url: 'https://picsum.photos/seed/feb10/800/600' },
+        { url: 'https://picsum.photos/seed/feb11/700/700' },
+        { url: 'https://picsum.photos/seed/feb12/800/600' },
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// AUTH
+// ============================================================
+const AUTH_KEY = 'aces-gallery-auth';
+
+function checkAuth() {
+  if (localStorage.getItem(AUTH_KEY) === GALLERY_CONFIG.password) {
+    showApp();
+  }
+}
+
+function attemptLogin() {
+  const pw = document.getElementById('gatePw').value;
+  if (pw === GALLERY_CONFIG.password) {
+    localStorage.setItem(AUTH_KEY, pw);
+    showApp();
+  } else {
+    document.getElementById('gateErr').style.display = 'block';
+    document.getElementById('gatePw').value = '';
+    document.getElementById('gatePw').focus();
+  }
+}
+
+function showApp() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  renderEvents();
+}
+
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+document.getElementById('gateBtn').addEventListener('click', attemptLogin);
+document.getElementById('gatePw').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// ============================================================
+// EVENT GRID
+// ============================================================
+let currentFilter = 'all';
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function renderEvents() {
+  const grid = document.getElementById('eventsGrid');
+  const events = GALLERY_CONFIG.events
+    .filter(e => currentFilter === 'all' || e.city === currentFilter)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  grid.innerHTML = '';
+  events.forEach((ev, i) => {
+    const coverUrl = ev.photos[ev.coverIndex || 0]?.url || '';
+    const card = document.createElement('div');
+    card.className = 'event-card fade-in';
+    card.style.animationDelay = (i * 0.06) + 's';
+    card.innerHTML = `
+      <div class="event-cover-wrap">
+        <div class="event-cover-skeleton"></div>
+        <img class="event-cover" src="${coverUrl}" alt="${ev.name}" loading="lazy" onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'">
+      </div>
+      <div class="event-info">
+        <div class="event-name">${ev.name}</div>
+        <div class="event-meta">
+          <span class="event-date">${formatDate(ev.date)}</span>
+          <span class="event-city">${ev.city === 'San Francisco' ? 'SF' : ev.city === 'New York' ? 'NY' : 'LA'}</span>
+          <span class="event-count">${ev.photos.length} photos</span>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => showEvent(ev.id));
+    grid.appendChild(card);
+  });
+}
+
+// Filters
+document.getElementById('filters').addEventListener('click', e => {
+  const pill = e.target.closest('.filter-pill');
+  if (!pill) return;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  currentFilter = pill.dataset.city;
+  renderEvents();
+});
+
+// ============================================================
+// EVENT DETAIL
+// ============================================================
+let currentEvent = null;
+
+function showEvent(eventId) {
+  currentEvent = GALLERY_CONFIG.events.find(e => e.id === eventId);
+  if (!currentEvent) return;
+
+  document.getElementById('mainHeader').style.display = 'none';
+  document.getElementById('eventsGrid').style.display = 'none';
+  document.getElementById('detail').classList.add('active');
+  document.getElementById('detail').classList.add('fade-in');
+  
+  document.getElementById('detailTitle').textContent = currentEvent.name;
+  document.getElementById('detailMeta').innerHTML = `
+    <span>${formatDate(currentEvent.date)}</span>
+    <span>·</span>
+    <span>${currentEvent.city}</span>
+    <span>·</span>
+    <span>Hosted by ${currentEvent.host}</span>
+    ${currentEvent.photographer && currentEvent.photographer !== 'TBD' ? `<span>·</span><span>📷 ${currentEvent.photographer}</span>` : ''}
+    <span>·</span>
+    <span>${currentEvent.photos.length} photos</span>
+  `;
+  
+  const masonry = document.getElementById('masonry');
+  masonry.innerHTML = '';
+  currentEvent.photos.forEach((photo, i) => {
+    const item = document.createElement('div');
+    item.className = 'masonry-item';
+    item.innerHTML = `<img src="${photo.url}" alt="" loading="lazy" onload="this.classList.add('loaded')">`;
+    item.addEventListener('click', () => openLightbox(i));
+    masonry.appendChild(item);
+  });
+  
+  window.scrollTo(0, 0);
+}
+
+function hideEvent() {
+  document.getElementById('detail').classList.remove('active');
+  document.getElementById('detail').classList.remove('fade-in');
+  document.getElementById('mainHeader').style.display = '';
+  document.getElementById('eventsGrid').style.display = '';
+  currentEvent = null;
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('backBtn').addEventListener('click', hideEvent);
+
+// ============================================================
+// LIGHTBOX
+// ============================================================
+let lbIndex = 0;
+
+function openLightbox(index) {
+  if (!currentEvent) return;
+  lbIndex = index;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function updateLightbox() {
+  const photo = currentEvent.photos[lbIndex];
+  document.getElementById('lbImg').src = photo.url;
+  document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${currentEvent.photos.length}`;
+}
+
+function lbPrev() {
+  if (!currentEvent) return;
+  lbIndex = (lbIndex - 1 + currentEvent.photos.length) % currentEvent.photos.length;
+  updateLightbox();
+}
+
+function lbNext() {
+  if (!currentEvent) return;
+  lbIndex = (lbIndex + 1) % currentEvent.photos.length;
+  updateLightbox();
+}
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', lbPrev);
+document.getElementById('lbNext').addEventListener('click', lbNext);
+
+document.getElementById('lbDownload').addEventListener('click', () => {
+  if (!currentEvent) return;
+  const photo = currentEvent.photos[lbIndex];
+  const a = document.createElement('a');
+  a.href = photo.url;
+  a.download = `${currentEvent.id}-${lbIndex + 1}.jpg`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// Lightbox click outside image to close
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lbImg')) {
+    if (e.target === document.getElementById('lbImg')) return;
+    closeLightbox();
+  }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (lb.classList.contains('active')) {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lbPrev();
+    if (e.key === 'ArrowRight') lbNext();
+  }
+  // ESC from detail view
+  if (e.key === 'Escape' && currentEvent && !lb.classList.contains('active')) {
+    hideEvent();
+  }
+});
+
+// Touch swipe for lightbox
+let touchStartX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+document.getElementById('lightbox').addEventListener('touchend', e => {
+  const diff = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) lbPrev();
+    else lbNext();
+  }
+}, { passive: true });
+
+// Browser back button support
+window.addEventListener('popstate', () => {
+  if (document.getElementById('lightbox').classList.contains('active')) {
+    closeLightbox();
+  } else if (currentEvent) {
+    hideEvent();
+  }
+});
+
+// Push state when navigating into event/lightbox
+const origShowEvent = showEvent;
+showEvent = function(id) {
+  history.pushState({ view: 'event', id }, '');
+  origShowEvent(id);
+};
+
+const origOpenLightbox = openLightbox;
+openLightbox = function(idx) {
+  history.pushState({ view: 'lightbox', idx }, '');
+  origOpenLightbox(idx);
+};
+
+// ============================================================
+// INIT
+// ============================================================
+checkAuth();
+</script>
+</body>
+</html>
