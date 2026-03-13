@@ -12,11 +12,14 @@
   --surface: #141414;
   --surface-hover: #1a1a1a;
   --border: #222;
-  --text: #f0f0f0;
-  --text-secondary: #888;
+  --text: #f5f0eb;
+  --text-secondary: #998f84;
   --text-muted: #555;
-  --accent: #8b5cf6;
-  --accent-dim: rgba(139,92,246,0.15);
+  --accent: #a42d0e;
+  --accent-light: #c4451e;
+  --accent-dim: rgba(164,45,14,0.15);
+  --cream: #f5f0eb;
+  --cream-dim: rgba(245,240,235,0.08);
   --radius: 10px;
   --radius-lg: 16px;
 }
@@ -27,12 +30,12 @@ img { display:block; }
 /* ===== PASSWORD GATE ===== */
 .gate { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
 .gate-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:48px 40px; max-width:380px; width:100%; text-align:center; }
-.gate-logo { font-size:28px; font-weight:700; letter-spacing:2px; margin-bottom:6px; }
+.gate-logo { font-size:28px; font-weight:700; letter-spacing:3px; margin-bottom:6px; color:var(--cream); }
 .gate-sub { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
 .gate-input { width:100%; padding:14px 16px; background:#0d0d0d; border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:15px; outline:none; transition:border-color 0.2s; }
 .gate-input:focus { border-color:var(--accent); }
 .gate-input::placeholder { color:var(--text-muted); }
-.gate-btn { width:100%; padding:14px; margin-top:12px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; transition:opacity 0.2s; }
+.gate-btn { width:100%; padding:14px; margin-top:12px; background:var(--accent); color:var(--cream); border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; transition:opacity 0.2s; }
 .gate-btn:hover { opacity:0.9; }
 .gate-error { color:#ef4444; font-size:12px; margin-top:10px; display:none; }
 
@@ -43,7 +46,10 @@ img { display:block; }
 /* Header */
 .header { padding:28px 24px 0; max-width:1200px; margin:0 auto; }
 .header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.brand { font-size:22px; font-weight:700; letter-spacing:1.5px; }
+.brand { font-size:22px; font-weight:700; letter-spacing:2px; color:var(--cream); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.admin-btn { background:var(--accent); border:none; border-radius:6px; color:var(--cream); font-size:11px; font-family:inherit; padding:8px 14px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+.admin-btn:hover { background:var(--accent-light); }
 .logout-btn { background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-muted); font-size:11px; font-family:inherit; padding:6px 12px; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.5px; }
 .logout-btn:hover { color:var(--text); border-color:var(--text-muted); }
 
@@ -51,7 +57,7 @@ img { display:block; }
 .filters { display:flex; gap:8px; flex-wrap:wrap; }
 .filter-pill { padding:8px 18px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-secondary); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; }
 .filter-pill:hover { border-color:var(--text-muted); color:var(--text); }
-.filter-pill.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.filter-pill.active { background:var(--accent); border-color:var(--accent); color:var(--cream); }
 
 /* Event Grid */
 .events-grid { max-width:1200px; margin:0 auto; padding:28px 24px 60px; display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
@@ -66,19 +72,24 @@ img { display:block; }
 .event-name { font-size:16px; font-weight:600; margin-bottom:6px; line-height:1.3; }
 .event-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .event-date { font-size:12px; color:var(--text-secondary); }
-.event-city { font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; background:var(--accent-dim); color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; }
+.event-city { font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; background:var(--accent-dim); color:var(--accent-light); text-transform:uppercase; letter-spacing:0.5px; }
 .event-count { font-size:12px; color:var(--text-muted); margin-left:auto; }
+.event-empty { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-muted); font-size:14px; }
 
 /* ===== EVENT DETAIL VIEW ===== */
 .detail { display:none; max-width:1200px; margin:0 auto; padding:0 24px 60px; }
 .detail.active { display:block; }
 .detail-header { padding:28px 0 20px; }
+.detail-header-row { display:flex; justify-content:space-between; align-items:flex-start; }
 .back-btn { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-secondary); font-family:inherit; font-size:13px; cursor:pointer; padding:8px 0; transition:color 0.2s; }
 .back-btn:hover { color:var(--text); }
 .back-btn svg { width:16px; height:16px; }
 .detail-title { font-size:26px; font-weight:700; margin:16px 0 8px; }
 .detail-meta { display:flex; gap:16px; flex-wrap:wrap; align-items:center; color:var(--text-secondary); font-size:13px; }
 .detail-meta span { display:flex; align-items:center; gap:5px; }
+.upload-btn { background:var(--accent); border:none; border-radius:8px; color:var(--cream); font-family:inherit; font-size:13px; font-weight:600; padding:10px 18px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:6px; margin-top:16px; }
+.upload-btn:hover { background:var(--accent-light); }
+.upload-btn svg { width:16px; height:16px; }
 
 /* Masonry Grid */
 .masonry { columns:3; column-gap:12px; padding-top:8px; }
@@ -86,7 +97,8 @@ img { display:block; }
 .masonry-item img { width:100%; display:block; opacity:0; transition:opacity 0.4s ease, transform 0.3s ease; }
 .masonry-item img.loaded { opacity:1; }
 .masonry-item:hover img { transform:scale(1.02); }
-.masonry-placeholder { width:100%; background:var(--surface-hover); border-radius:var(--radius); }
+.masonry-item .delete-photo { position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); border:none; color:#ef4444; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:14px; display:none; align-items:center; justify-content:center; z-index:5; }
+.masonry-item:hover .delete-photo { display:flex; }
 
 /* ===== LIGHTBOX ===== */
 .lightbox { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.95); align-items:center; justify-content:center; }
@@ -102,13 +114,47 @@ img { display:block; }
 .lightbox-download { position:fixed; top:20px; left:24px; background:none; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:rgba(255,255,255,0.6); font-size:12px; font-family:inherit; padding:8px 14px; cursor:pointer; transition:all 0.2s; z-index:1001; display:flex; align-items:center; gap:6px; }
 .lightbox-download:hover { color:#fff; border-color:rgba(255,255,255,0.4); }
 
+/* ===== MODAL ===== */
+.modal-overlay { display:none; position:fixed; inset:0; z-index:900; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.active { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); max-width:500px; width:100%; padding:32px; position:relative; max-height:90vh; overflow-y:auto; }
+.modal-title { font-size:20px; font-weight:700; margin-bottom:20px; }
+.modal-close { position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 8px; }
+.modal-close:hover { color:var(--text); }
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:12px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.form-input, .form-select { width:100%; padding:12px 14px; background:#0d0d0d; border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s; }
+.form-input:focus, .form-select:focus { border-color:var(--accent); }
+.form-select { appearance:none; cursor:pointer; }
+.form-input::placeholder { color:var(--text-muted); }
+.form-submit { width:100%; padding:14px; background:var(--accent); color:var(--cream); border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; transition:opacity 0.2s; margin-top:8px; }
+.form-submit:hover { opacity:0.9; }
+
+/* Upload area */
+.upload-area { border:2px dashed var(--border); border-radius:var(--radius); padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:16px; }
+.upload-area:hover, .upload-area.dragover { border-color:var(--accent); background:var(--accent-dim); }
+.upload-area-icon { font-size:32px; margin-bottom:8px; }
+.upload-area-text { font-size:13px; color:var(--text-secondary); }
+.upload-area-hint { font-size:11px; color:var(--text-muted); margin-top:4px; }
+.upload-preview { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.upload-preview-item { width:64px; height:64px; border-radius:6px; overflow:hidden; position:relative; }
+.upload-preview-item img { width:100%; height:100%; object-fit:cover; }
+.upload-preview-item .remove-preview { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.7); border:none; color:#fff; width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; }
+.upload-progress { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; display:none; }
+.upload-progress.active { display:block; }
+.upload-progress-bar { height:100%; background:var(--accent); border-radius:2px; transition:width 0.3s; width:0%; }
+
+/* Toast */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; font-size:12px; color:var(--text); box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:2000; opacity:0; transform:translateY(20px); transition:all 0.3s ease; max-width:300px; }
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.success { border-color:#22c55e; background:rgba(34,197,94,0.08); }
+.toast.error { border-color:#ef4444; background:rgba(239,68,68,0.08); }
+
 /* Footer */
 .footer { text-align:center; padding:40px 24px; color:var(--text-muted); font-size:11px; letter-spacing:0.3px; }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width:900px) {
-  .masonry { columns:2; }
-}
+@media (max-width:900px) { .masonry { columns:2; } }
 @media (max-width:640px) {
   .events-grid { grid-template-columns:1fr; padding:20px 16px 60px; }
   .header { padding:20px 16px 0; }
@@ -120,12 +166,10 @@ img { display:block; }
   .lightbox-nav { width:40px; height:40px; font-size:16px; }
   .lightbox-prev { left:12px; }
   .lightbox-next { right:12px; }
+  .modal { padding:24px 20px; margin:10px; }
 }
-@media (max-width:400px) {
-  .masonry { columns:1; }
-}
+@media (max-width:400px) { .masonry { columns:1; } }
 
-/* Fade in animation */
 .fade-in { animation:fadeIn 0.3s ease; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 </style>
@@ -145,38 +189,43 @@ img { display:block; }
 
 <!-- MAIN APP -->
 <div class="app" id="app">
-
-  <!-- Header + Filters -->
   <div class="header" id="mainHeader">
     <div class="header-row">
       <div class="brand">ACES</div>
-      <button class="logout-btn" id="logoutBtn">Sign Out</button>
+      <div class="header-actions">
+        <button class="admin-btn" id="newEventBtn">+ New Event</button>
+        <button class="logout-btn" id="logoutBtn">Sign Out</button>
+      </div>
     </div>
     <div class="filters" id="filters">
       <button class="filter-pill active" data-city="all">All</button>
-      <button class="filter-pill" data-city="New York">New York</button>
-      <button class="filter-pill" data-city="San Francisco">San Francisco</button>
-      <button class="filter-pill" data-city="Los Angeles">Los Angeles</button>
+      <button class="filter-pill" data-city="New York">NY</button>
+      <button class="filter-pill" data-city="San Francisco">SF</button>
+      <button class="filter-pill" data-city="Los Angeles">LA</button>
     </div>
   </div>
 
-  <!-- Event Grid -->
   <div class="events-grid" id="eventsGrid"></div>
 
-  <!-- Event Detail -->
   <div class="detail" id="detail">
     <div class="detail-header">
-      <button class="back-btn" id="backBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Back to events
-      </button>
+      <div class="detail-header-row">
+        <button class="back-btn" id="backBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back to events
+        </button>
+      </div>
       <div class="detail-title" id="detailTitle"></div>
       <div class="detail-meta" id="detailMeta"></div>
+      <button class="upload-btn" id="uploadBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload Photos
+      </button>
     </div>
     <div class="masonry" id="masonry"></div>
   </div>
 
-  <div class="footer">© 2026 Aces. All photos are private and for members only.</div>
+  <div class="footer">&copy; 2026 Aces (Inventure Capital). All photos are private and for members only.</div>
 </div>
 
 <!-- LIGHTBOX -->
@@ -192,117 +241,106 @@ img { display:block; }
   <div class="lightbox-counter" id="lbCounter"></div>
 </div>
 
+<!-- NEW EVENT MODAL -->
+<div class="modal-overlay" id="newEventModal">
+  <div class="modal">
+    <button class="modal-close" id="closeNewEvent">&times;</button>
+    <div class="modal-title">New Event</div>
+    <div class="form-group">
+      <label class="form-label">Event Name</label>
+      <input class="form-input" id="eventName" placeholder="e.g. March Dinner">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" id="eventDate" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">City</label>
+      <select class="form-select" id="eventCity">
+        <option value="New York">New York</option>
+        <option value="San Francisco">San Francisco</option>
+        <option value="Los Angeles">Los Angeles</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Host</label>
+      <input class="form-input" id="eventHost" placeholder="e.g. Tom McLeod">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Photographer (optional)</label>
+      <input class="form-input" id="eventPhotographer" placeholder="e.g. Nova">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cover Photo (optional)</label>
+      <input class="form-input" id="eventCoverFile" type="file" accept="image/*">
+    </div>
+    <button class="form-submit" id="createEventBtn">Create Event</button>
+  </div>
+</div>
+
+<!-- UPLOAD PHOTOS MODAL -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal">
+    <button class="modal-close" id="closeUpload">&times;</button>
+    <div class="modal-title">Upload Photos</div>
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-area-icon">📸</div>
+      <div class="upload-area-text">Drag photos here or click to browse</div>
+      <div class="upload-area-hint">JPG, PNG, HEIC up to 20MB each</div>
+      <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+    </div>
+    <div class="upload-preview" id="uploadPreview"></div>
+    <div class="upload-progress" id="uploadProgress">
+      <div class="upload-progress-bar" id="uploadProgressBar"></div>
+    </div>
+    <button class="form-submit" id="uploadSubmitBtn" style="display:none">Upload <span id="uploadCount"></span> Photos</button>
+  </div>
+</div>
+
 <script>
 // ============================================================
-// GALLERY CONFIG — Update this to add/change events and photos
+// STORAGE — All data persisted in localStorage (no backend needed)
 // ============================================================
-const GALLERY_CONFIG = {
-  password: 'aces2026',
-  community: 'Aces',
-  events: [
-    {
-      id: 'aces-la-mar27',
-      name: 'LA Dinner: Starting Over',
-      date: '2026-03-27',
-      city: 'Los Angeles',
-      host: 'Karan Wadhera',
-      photographer: 'Abe',
-      coverIndex: 0,
-      photos: [
-        { url: 'https://picsum.photos/seed/la1/800/600' },
-        { url: 'https://picsum.photos/seed/la2/800/1000' },
-        { url: 'https://picsum.photos/seed/la3/900/600' },
-        { url: 'https://picsum.photos/seed/la4/700/900' },
-        { url: 'https://picsum.photos/seed/la5/800/600' },
-        { url: 'https://picsum.photos/seed/la6/600/800' },
-        { url: 'https://picsum.photos/seed/la7/800/600' },
-        { url: 'https://picsum.photos/seed/la8/700/700' },
-        { url: 'https://picsum.photos/seed/la9/800/600' },
-        { url: 'https://picsum.photos/seed/la10/600/900' },
-      ]
-    },
-    {
-      id: 'aces-ny-mar17',
-      name: 'NY Dinner: The Art of the Deal',
-      date: '2026-03-17',
-      city: 'New York',
-      host: 'Jason Shuman',
-      photographer: 'Oren Siddo',
-      coverIndex: 0,
-      photos: [
-        { url: 'https://picsum.photos/seed/ny1/800/600' },
-        { url: 'https://picsum.photos/seed/ny2/700/900' },
-        { url: 'https://picsum.photos/seed/ny3/800/600' },
-        { url: 'https://picsum.photos/seed/ny4/800/1000' },
-        { url: 'https://picsum.photos/seed/ny5/900/600' },
-        { url: 'https://picsum.photos/seed/ny6/800/600' },
-        { url: 'https://picsum.photos/seed/ny7/600/800' },
-        { url: 'https://picsum.photos/seed/ny8/800/600' },
-        { url: 'https://picsum.photos/seed/ny9/700/700' },
-        { url: 'https://picsum.photos/seed/ny10/800/600' },
-        { url: 'https://picsum.photos/seed/ny11/600/900' },
-      ]
-    },
-    {
-      id: 'aces-sf-mar12',
-      name: 'SF Dinner: Learning & Unlearning',
-      date: '2026-03-12',
-      city: 'San Francisco',
-      host: 'Helen Min',
-      photographer: 'TBD',
-      coverIndex: 0,
-      photos: [
-        { url: 'https://picsum.photos/seed/sfm1/800/600' },
-        { url: 'https://picsum.photos/seed/sfm2/800/1000' },
-        { url: 'https://picsum.photos/seed/sfm3/700/600' },
-        { url: 'https://picsum.photos/seed/sfm4/800/600' },
-        { url: 'https://picsum.photos/seed/sfm5/600/800' },
-        { url: 'https://picsum.photos/seed/sfm6/800/600' },
-        { url: 'https://picsum.photos/seed/sfm7/900/700' },
-        { url: 'https://picsum.photos/seed/sfm8/800/600' },
-      ]
-    },
-    {
-      id: 'aces-sf-feb19',
-      name: 'SF Dinner: February Fireside',
-      date: '2026-02-19',
-      city: 'San Francisco',
-      host: 'Alex Revelle',
-      photographer: 'Hannah',
-      coverIndex: 2,
-      photos: [
-        { url: 'https://picsum.photos/seed/feb1/800/600' },
-        { url: 'https://picsum.photos/seed/feb2/600/800' },
-        { url: 'https://picsum.photos/seed/feb3/800/600' },
-        { url: 'https://picsum.photos/seed/feb4/700/900' },
-        { url: 'https://picsum.photos/seed/feb5/800/600' },
-        { url: 'https://picsum.photos/seed/feb6/800/600' },
-        { url: 'https://picsum.photos/seed/feb7/900/600' },
-        { url: 'https://picsum.photos/seed/feb8/800/600' },
-        { url: 'https://picsum.photos/seed/feb9/600/900' },
-        { url: 'https://picsum.photos/seed/feb10/800/600' },
-        { url: 'https://picsum.photos/seed/feb11/700/700' },
-        { url: 'https://picsum.photos/seed/feb12/800/600' },
-      ]
-    }
-  ]
-};
+const STORAGE_KEY = 'aces-gallery-data';
+const AUTH_KEY = 'aces-gallery-auth';
+const PASSWORD = 'aces2026';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { events: [] };
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let galleryData = loadData();
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
 
 // ============================================================
 // AUTH
 // ============================================================
-const AUTH_KEY = 'aces-gallery-auth';
-
 function checkAuth() {
-  if (localStorage.getItem(AUTH_KEY) === GALLERY_CONFIG.password) {
-    showApp();
-  }
+  if (localStorage.getItem(AUTH_KEY) === PASSWORD) showApp();
 }
 
 function attemptLogin() {
-  const pw = document.getElementById('gatePw').value;
-  if (pw === GALLERY_CONFIG.password) {
-    localStorage.setItem(AUTH_KEY, pw);
+  if (document.getElementById('gatePw').value === PASSWORD) {
+    localStorage.setItem(AUTH_KEY, PASSWORD);
     showApp();
   } else {
     document.getElementById('gateErr').style.display = 'block';
@@ -317,14 +355,9 @@ function showApp() {
   renderEvents();
 }
 
-function logout() {
-  localStorage.removeItem(AUTH_KEY);
-  location.reload();
-}
-
 document.getElementById('gateBtn').addEventListener('click', attemptLogin);
 document.getElementById('gatePw').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
-document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem(AUTH_KEY); location.reload(); });
 
 // ============================================================
 // EVENT GRID
@@ -336,28 +369,39 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+function cityTag(city) {
+  if (city === 'San Francisco') return 'SF';
+  if (city === 'New York') return 'NY';
+  return 'LA';
+}
+
 function renderEvents() {
   const grid = document.getElementById('eventsGrid');
-  const events = GALLERY_CONFIG.events
+  const events = galleryData.events
     .filter(e => currentFilter === 'all' || e.city === currentFilter)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
   grid.innerHTML = '';
+  if (events.length === 0) {
+    grid.innerHTML = '<div class="event-empty">No events yet. Click "+ New Event" to create one.</div>';
+    return;
+  }
+
   events.forEach((ev, i) => {
-    const coverUrl = ev.photos[ev.coverIndex || 0]?.url || '';
+    const coverUrl = ev.cover || (ev.photos[0]?.data) || '';
     const card = document.createElement('div');
     card.className = 'event-card fade-in';
     card.style.animationDelay = (i * 0.06) + 's';
     card.innerHTML = `
       <div class="event-cover-wrap">
         <div class="event-cover-skeleton"></div>
-        <img class="event-cover" src="${coverUrl}" alt="${ev.name}" loading="lazy" onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'">
+        ${coverUrl ? `<img class="event-cover" src="${coverUrl}" alt="${ev.name}" loading="lazy" onload="this.classList.add('loaded');this.previousElementSibling.style.display='none'">` : '<div style="width:100%;aspect-ratio:16/10;background:var(--surface-hover);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;">No photos yet</div>'}
       </div>
       <div class="event-info">
         <div class="event-name">${ev.name}</div>
         <div class="event-meta">
           <span class="event-date">${formatDate(ev.date)}</span>
-          <span class="event-city">${ev.city === 'San Francisco' ? 'SF' : ev.city === 'New York' ? 'NY' : 'LA'}</span>
+          <span class="event-city">${cityTag(ev.city)}</span>
           <span class="event-count">${ev.photos.length} photos</span>
         </div>
       </div>
@@ -367,7 +411,6 @@ function renderEvents() {
   });
 }
 
-// Filters
 document.getElementById('filters').addEventListener('click', e => {
   const pill = e.target.closest('.filter-pill');
   if (!pill) return;
@@ -383,45 +426,65 @@ document.getElementById('filters').addEventListener('click', e => {
 let currentEvent = null;
 
 function showEvent(eventId) {
-  currentEvent = GALLERY_CONFIG.events.find(e => e.id === eventId);
+  currentEvent = galleryData.events.find(e => e.id === eventId);
   if (!currentEvent) return;
 
   document.getElementById('mainHeader').style.display = 'none';
   document.getElementById('eventsGrid').style.display = 'none';
   document.getElementById('detail').classList.add('active');
   document.getElementById('detail').classList.add('fade-in');
-  
+
   document.getElementById('detailTitle').textContent = currentEvent.name;
   document.getElementById('detailMeta').innerHTML = `
     <span>${formatDate(currentEvent.date)}</span>
     <span>·</span>
     <span>${currentEvent.city}</span>
-    <span>·</span>
-    <span>Hosted by ${currentEvent.host}</span>
-    ${currentEvent.photographer && currentEvent.photographer !== 'TBD' ? `<span>·</span><span>📷 ${currentEvent.photographer}</span>` : ''}
+    ${currentEvent.host ? `<span>·</span><span>Hosted by ${currentEvent.host}</span>` : ''}
+    ${currentEvent.photographer ? `<span>·</span><span>📷 ${currentEvent.photographer}</span>` : ''}
     <span>·</span>
     <span>${currentEvent.photos.length} photos</span>
   `;
-  
+
+  renderMasonry();
+  window.scrollTo(0, 0);
+  history.pushState({ view: 'event', id: eventId }, '');
+}
+
+function renderMasonry() {
   const masonry = document.getElementById('masonry');
   masonry.innerHTML = '';
+  if (!currentEvent) return;
+
   currentEvent.photos.forEach((photo, i) => {
     const item = document.createElement('div');
     item.className = 'masonry-item';
-    item.innerHTML = `<img src="${photo.url}" alt="" loading="lazy" onload="this.classList.add('loaded')">`;
-    item.addEventListener('click', () => openLightbox(i));
+    item.innerHTML = `
+      <img src="${photo.data}" alt="" loading="lazy" onload="this.classList.add('loaded')">
+      <button class="delete-photo" title="Remove photo" data-index="${i}">&times;</button>
+    `;
+    item.querySelector('img').addEventListener('click', () => openLightbox(i));
+    item.querySelector('.delete-photo').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm('Remove this photo?')) {
+        currentEvent.photos.splice(i, 1);
+        if (currentEvent.cover === photo.data) currentEvent.cover = currentEvent.photos[0]?.data || '';
+        saveData(galleryData);
+        renderMasonry();
+        // Update meta count
+        document.getElementById('detailMeta').querySelector('span:last-child').textContent = `${currentEvent.photos.length} photos`;
+        showToast('Photo removed', 'success');
+      }
+    });
     masonry.appendChild(item);
   });
-  
-  window.scrollTo(0, 0);
 }
 
 function hideEvent() {
-  document.getElementById('detail').classList.remove('active');
-  document.getElementById('detail').classList.remove('fade-in');
+  document.getElementById('detail').classList.remove('active', 'fade-in');
   document.getElementById('mainHeader').style.display = '';
   document.getElementById('eventsGrid').style.display = '';
   currentEvent = null;
+  renderEvents();
   window.scrollTo(0, 0);
 }
 
@@ -438,6 +501,7 @@ function openLightbox(index) {
   updateLightbox();
   document.getElementById('lightbox').classList.add('active');
   document.body.style.overflow = 'hidden';
+  history.pushState({ view: 'lightbox', idx: index }, '');
 }
 
 function closeLightbox() {
@@ -447,94 +511,203 @@ function closeLightbox() {
 
 function updateLightbox() {
   const photo = currentEvent.photos[lbIndex];
-  document.getElementById('lbImg').src = photo.url;
+  document.getElementById('lbImg').src = photo.data;
   document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${currentEvent.photos.length}`;
 }
 
-function lbPrev() {
-  if (!currentEvent) return;
-  lbIndex = (lbIndex - 1 + currentEvent.photos.length) % currentEvent.photos.length;
-  updateLightbox();
-}
-
-function lbNext() {
-  if (!currentEvent) return;
-  lbIndex = (lbIndex + 1) % currentEvent.photos.length;
-  updateLightbox();
-}
+function lbPrev() { if (!currentEvent) return; lbIndex = (lbIndex - 1 + currentEvent.photos.length) % currentEvent.photos.length; updateLightbox(); }
+function lbNext() { if (!currentEvent) return; lbIndex = (lbIndex + 1) % currentEvent.photos.length; updateLightbox(); }
 
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 document.getElementById('lbPrev').addEventListener('click', lbPrev);
 document.getElementById('lbNext').addEventListener('click', lbNext);
-
 document.getElementById('lbDownload').addEventListener('click', () => {
   if (!currentEvent) return;
-  const photo = currentEvent.photos[lbIndex];
   const a = document.createElement('a');
-  a.href = photo.url;
-  a.download = `${currentEvent.id}-${lbIndex + 1}.jpg`;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = currentEvent.photos[lbIndex].data;
+  a.download = `aces-${currentEvent.id}-${lbIndex + 1}.jpg`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
-
-// Lightbox click outside image to close
 document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lbImg')) {
-    if (e.target === document.getElementById('lbImg')) return;
-    closeLightbox();
-  }
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
 });
 
-// Keyboard navigation
+// Keyboard
 document.addEventListener('keydown', e => {
-  const lb = document.getElementById('lightbox');
-  if (lb.classList.contains('active')) {
+  if (document.getElementById('lightbox').classList.contains('active')) {
     if (e.key === 'Escape') closeLightbox();
     if (e.key === 'ArrowLeft') lbPrev();
     if (e.key === 'ArrowRight') lbNext();
-  }
-  // ESC from detail view
-  if (e.key === 'Escape' && currentEvent && !lb.classList.contains('active')) {
-    hideEvent();
-  }
+  } else if (currentEvent && e.key === 'Escape') hideEvent();
 });
 
-// Touch swipe for lightbox
+// Touch swipe
 let touchStartX = 0;
-document.getElementById('lightbox').addEventListener('touchstart', e => {
-  touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
+document.getElementById('lightbox').addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
 document.getElementById('lightbox').addEventListener('touchend', e => {
   const diff = e.changedTouches[0].screenX - touchStartX;
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) lbPrev();
-    else lbNext();
-  }
+  if (Math.abs(diff) > 50) { diff > 0 ? lbPrev() : lbNext(); }
 }, { passive: true });
 
-// Browser back button support
+// Back button
 window.addEventListener('popstate', () => {
-  if (document.getElementById('lightbox').classList.contains('active')) {
-    closeLightbox();
-  } else if (currentEvent) {
-    hideEvent();
+  if (document.getElementById('lightbox').classList.contains('active')) closeLightbox();
+  else if (currentEvent) hideEvent();
+});
+
+// ============================================================
+// NEW EVENT MODAL
+// ============================================================
+document.getElementById('newEventBtn').addEventListener('click', () => {
+  document.getElementById('newEventModal').classList.add('active');
+});
+document.getElementById('closeNewEvent').addEventListener('click', () => {
+  document.getElementById('newEventModal').classList.remove('active');
+});
+document.getElementById('newEventModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('newEventModal')) document.getElementById('newEventModal').classList.remove('active');
+});
+
+document.getElementById('createEventBtn').addEventListener('click', () => {
+  const name = document.getElementById('eventName').value.trim();
+  const date = document.getElementById('eventDate').value;
+  const city = document.getElementById('eventCity').value;
+  const host = document.getElementById('eventHost').value.trim();
+  const photographer = document.getElementById('eventPhotographer').value.trim();
+  const coverFile = document.getElementById('eventCoverFile').files[0];
+
+  if (!name || !date) { showToast('Name and date are required', 'error'); return; }
+
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '') + '-' + date;
+
+  const event = { id, name, date, city, host, photographer, cover: '', photos: [] };
+
+  if (coverFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      event.cover = reader.result;
+      galleryData.events.push(event);
+      saveData(galleryData);
+      finishCreateEvent();
+    };
+    reader.readAsDataURL(coverFile);
+  } else {
+    galleryData.events.push(event);
+    saveData(galleryData);
+    finishCreateEvent();
   }
 });
 
-// Push state when navigating into event/lightbox
-const origShowEvent = showEvent;
-showEvent = function(id) {
-  history.pushState({ view: 'event', id }, '');
-  origShowEvent(id);
-};
+function finishCreateEvent() {
+  document.getElementById('newEventModal').classList.remove('active');
+  document.getElementById('eventName').value = '';
+  document.getElementById('eventDate').value = '';
+  document.getElementById('eventHost').value = '';
+  document.getElementById('eventPhotographer').value = '';
+  document.getElementById('eventCoverFile').value = '';
+  renderEvents();
+  showToast('Event created', 'success');
+}
 
-const origOpenLightbox = openLightbox;
-openLightbox = function(idx) {
-  history.pushState({ view: 'lightbox', idx }, '');
-  origOpenLightbox(idx);
-};
+// ============================================================
+// UPLOAD PHOTOS MODAL
+// ============================================================
+let pendingFiles = [];
+
+document.getElementById('uploadBtn').addEventListener('click', () => {
+  pendingFiles = [];
+  document.getElementById('uploadPreview').innerHTML = '';
+  document.getElementById('uploadSubmitBtn').style.display = 'none';
+  document.getElementById('uploadProgress').classList.remove('active');
+  document.getElementById('uploadModal').classList.add('active');
+});
+document.getElementById('closeUpload').addEventListener('click', () => {
+  document.getElementById('uploadModal').classList.remove('active');
+});
+document.getElementById('uploadModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('uploadModal')) document.getElementById('uploadModal').classList.remove('active');
+});
+
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  handleFiles(Array.from(e.dataTransfer.files));
+});
+fileInput.addEventListener('change', () => { handleFiles(Array.from(fileInput.files)); fileInput.value = ''; });
+
+function handleFiles(files) {
+  const imageFiles = files.filter(f => f.type.startsWith('image/'));
+  pendingFiles.push(...imageFiles);
+  renderUploadPreview();
+}
+
+function renderUploadPreview() {
+  const preview = document.getElementById('uploadPreview');
+  preview.innerHTML = '';
+  pendingFiles.forEach((file, i) => {
+    const item = document.createElement('div');
+    item.className = 'upload-preview-item';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-preview';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', () => { pendingFiles.splice(i, 1); renderUploadPreview(); });
+    item.appendChild(img);
+    item.appendChild(removeBtn);
+    preview.appendChild(item);
+  });
+  const submitBtn = document.getElementById('uploadSubmitBtn');
+  if (pendingFiles.length > 0) {
+    submitBtn.style.display = '';
+    document.getElementById('uploadCount').textContent = pendingFiles.length;
+  } else {
+    submitBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('uploadSubmitBtn').addEventListener('click', async () => {
+  if (!currentEvent || pendingFiles.length === 0) return;
+  const progressEl = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  progressEl.classList.add('active');
+  progressBar.style.width = '0%';
+
+  const total = pendingFiles.length;
+  let done = 0;
+
+  for (const file of pendingFiles) {
+    const dataUrl = await readFileAsDataURL(file);
+    currentEvent.photos.push({ data: dataUrl, name: file.name, added: new Date().toISOString() });
+    done++;
+    progressBar.style.width = ((done / total) * 100) + '%';
+  }
+
+  if (!currentEvent.cover && currentEvent.photos.length > 0) {
+    currentEvent.cover = currentEvent.photos[0].data;
+  }
+
+  saveData(galleryData);
+  pendingFiles = [];
+  document.getElementById('uploadModal').classList.remove('active');
+  renderMasonry();
+  document.getElementById('detailMeta').querySelector('span:last-child').textContent = `${currentEvent.photos.length} photos`;
+  showToast(`${total} photo${total > 1 ? 's' : ''} uploaded`, 'success');
+});
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
 
 // ============================================================
 // INIT
