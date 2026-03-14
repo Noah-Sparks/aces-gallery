@@ -35,10 +35,10 @@ class R2Storage {
       const result = await response.json();
       this.log('Photo uploaded:', result);
       
-      // Return full URL
+      // Return URL (Worker returns full URL already)
       return {
         ...result,
-        url: this.workerUrl + result.url
+        url: result.url.startsWith('http') ? result.url : this.workerUrl + result.url
       };
     } catch (error) {
       this.log('Upload error:', error);
