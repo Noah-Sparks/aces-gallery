@@ -6,6 +6,8 @@
 <title>Aces — Photo Gallery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="r2-storage.js"></script>
 <style>
 :root {
   --bg: #f5f0eb;
@@ -299,11 +301,16 @@ img { display:block; }
 
 <script>
 // ============================================================
-// STORAGE — All data persisted in localStorage (no backend needed)
+// STORAGE — R2 backend with localStorage fallback
 // ============================================================
+
+// Initialize R2 storage
+const r2Storage = new R2Storage(GALLERY_CONFIG);
+
+// Keep localStorage for event list and as fallback
 const STORAGE_KEY = 'aces-gallery-data';
 const AUTH_KEY = 'aces-gallery-auth';
-const PASSWORD = 'aces2026';
+const PASSWORD = GALLERY_CONFIG.PASSWORD;
 
 function loadData() {
   try {
@@ -388,7 +395,7 @@ function renderEvents() {
   }
 
   events.forEach((ev, i) => {
-    const coverUrl = ev.cover || (ev.photos[0]?.data) || '';
+    const coverUrl = ev.cover || (ev.photos[0]?.url) || (ev.photos[0]?.data) || '';
     const card = document.createElement('div');
     card.className = 'event-card fade-in';
     card.style.animationDelay = (i * 0.06) + 's';
@@ -458,21 +465,49 @@ function renderMasonry() {
   currentEvent.photos.forEach((photo, i) => {
     const item = document.createElement('div');
     item.className = 'masonry-item';
+    
+    // Use the full URL from R2 or fallback to localStorage data
+    const photoUrl = photo.url || photo.data || '';
+    
     item.innerHTML = `
-      <img src="${photo.data}" alt="" loading="lazy" onload="this.classList.add('loaded')">
+      <img src="${photoUrl}" alt="" loading="lazy" onload="this.classList.add('loaded')">
       <button class="delete-photo" title="Remove photo" data-index="${i}">&times;</button>
     `;
     item.querySelector('img').addEventListener('click', () => openLightbox(i));
-    item.querySelector('.delete-photo').addEventListener('click', (e) => {
+    item.querySelector('.delete-photo').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm('Remove this photo?')) {
-        currentEvent.photos.splice(i, 1);
-        if (currentEvent.cover === photo.data) currentEvent.cover = currentEvent.photos[0]?.data || '';
-        saveData(galleryData);
-        renderMasonry();
-        // Update meta count
-        document.getElementById('detailMeta').querySelector('span:last-child').textContent = `${currentEvent.photos.length} photos`;
-        showToast('Photo removed', 'success');
+        try {
+          // Delete from R2 if it's not a fallback/localStorage photo
+          if (photo.key && !photo.fallback) {
+            await r2Storage.deletePhoto(photo.key);
+          }
+          
+          currentEvent.photos.splice(i, 1);
+          if (currentEvent.cover === photoUrl) {
+            currentEvent.cover = currentEvent.photos[0]?.url || currentEvent.photos[0]?.data || '';
+          }
+          
+          // Update metadata in R2
+          await r2Storage.saveMetadata(currentEvent.id, {
+            name: currentEvent.name,
+            date: currentEvent.date,
+            city: currentEvent.city,
+            host: currentEvent.host,
+            photographer: currentEvent.photographer,
+            cover: currentEvent.cover,
+            photoCount: currentEvent.photos.length,
+            photos: currentEvent.photos
+          });
+          
+          saveData(galleryData);
+          renderMasonry();
+          document.getElementById('detailMeta').querySelector('span:last-child').textContent = `${currentEvent.photos.length} photos`;
+          showToast('Photo removed', 'success');
+        } catch (error) {
+          console.error('Delete error:', error);
+          showToast('Failed to delete photo', 'error');
+        }
       }
     });
     masonry.appendChild(item);
@@ -511,7 +546,8 @@ function closeLightbox() {
 
 function updateLightbox() {
   const photo = currentEvent.photos[lbIndex];
-  document.getElementById('lbImg').src = photo.data;
+  const photoUrl = photo.url || photo.data || '';
+  document.getElementById('lbImg').src = photoUrl;
   document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${currentEvent.photos.length}`;
 }
 
@@ -523,8 +559,10 @@ document.getElementById('lbPrev').addEventListener('click', lbPrev);
 document.getElementById('lbNext').addEventListener('click', lbNext);
 document.getElementById('lbDownload').addEventListener('click', () => {
   if (!currentEvent) return;
+  const photo = currentEvent.photos[lbIndex];
+  const photoUrl = photo.url || photo.data || '';
   const a = document.createElement('a');
-  a.href = currentEvent.photos[lbIndex].data;
+  a.href = photoUrl;
   a.download = `aces-${currentEvent.id}-${lbIndex + 1}.jpg`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
@@ -583,14 +621,24 @@ document.getElementById('createEventBtn').addEventListener('click', () => {
   const event = { id, name, date, city, host, photographer, cover: '', photos: [] };
 
   if (coverFile) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      event.cover = reader.result;
+    // Upload cover to R2
+    r2Storage.uploadPhoto(id, coverFile).then(result => {
+      event.cover = result.url;
       galleryData.events.push(event);
       saveData(galleryData);
       finishCreateEvent();
-    };
-    reader.readAsDataURL(coverFile);
+    }).catch(error => {
+      console.error('Cover upload error:', error);
+      // Fallback to base64 if R2 upload fails
+      const reader = new FileReader();
+      reader.onload = () => {
+        event.cover = reader.result;
+        galleryData.events.push(event);
+        saveData(galleryData);
+        finishCreateEvent();
+      };
+      reader.readAsDataURL(coverFile);
+    });
   } else {
     galleryData.events.push(event);
     saveData(galleryData);
@@ -681,24 +729,59 @@ document.getElementById('uploadSubmitBtn').addEventListener('click', async () =>
 
   const total = pendingFiles.length;
   let done = 0;
+  const errors = [];
 
   for (const file of pendingFiles) {
-    const dataUrl = await readFileAsDataURL(file);
-    currentEvent.photos.push({ data: dataUrl, name: file.name, added: new Date().toISOString() });
-    done++;
-    progressBar.style.width = ((done / total) * 100) + '%';
+    try {
+      // Upload to R2 via Worker
+      const result = await r2Storage.uploadPhoto(currentEvent.id, file);
+      
+      currentEvent.photos.push({
+        key: result.key,
+        url: result.url,
+        filename: result.filename,
+        name: file.name,
+        added: new Date().toISOString(),
+        fallback: result.fallback || false
+      });
+      
+      done++;
+      progressBar.style.width = ((done / total) * 100) + '%';
+    } catch (error) {
+      console.error('Upload error:', error);
+      errors.push({ file: file.name, error: error.message });
+      done++;
+      progressBar.style.width = ((done / total) * 100) + '%';
+    }
   }
 
   if (!currentEvent.cover && currentEvent.photos.length > 0) {
-    currentEvent.cover = currentEvent.photos[0].data;
+    currentEvent.cover = currentEvent.photos[0].url;
   }
 
-  saveData(galleryData);
+  // Save event metadata (photos list stored in R2, event info in localStorage)
+  await r2Storage.saveMetadata(currentEvent.id, {
+    name: currentEvent.name,
+    date: currentEvent.date,
+    city: currentEvent.city,
+    host: currentEvent.host,
+    photographer: currentEvent.photographer,
+    cover: currentEvent.cover,
+    photoCount: currentEvent.photos.length,
+    photos: currentEvent.photos
+  });
+
+  saveData(galleryData); // Still save event list to localStorage
   pendingFiles = [];
   document.getElementById('uploadModal').classList.remove('active');
   renderMasonry();
   document.getElementById('detailMeta').querySelector('span:last-child').textContent = `${currentEvent.photos.length} photos`;
-  showToast(`${total} photo${total > 1 ? 's' : ''} uploaded`, 'success');
+  
+  if (errors.length > 0) {
+    showToast(`${done - errors.length} uploaded, ${errors.length} failed`, 'error');
+  } else {
+    showToast(`${total} photo${total > 1 ? 's' : ''} uploaded`, 'success');
+  }
 });
 
 function readFileAsDataURL(file) {
