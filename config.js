@@ -8,8 +8,11 @@ const GALLERY_CONFIG = {
   // API key for upload/delete operations
   API_KEY: 'd26ebdb699a89c7ba7ea8c78d230de60885cfd190f08eb4cb42afbd08e22cadc',
   
-  // Password for gallery access
+  // Member password (view, upload, download)
   PASSWORD: 'aces2026',
+  
+  // Admin password (delete, set cover, create/delete events)
+  ADMIN_PASSWORD: 'acesadmin2026',
   
   // Enable localStorage fallback
   USE_FALLBACK: true,

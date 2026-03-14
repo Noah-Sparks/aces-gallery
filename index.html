@@ -313,6 +313,8 @@ const r2Storage = new R2Storage(GALLERY_CONFIG);
 const STORAGE_KEY = 'aces-gallery-data';
 const AUTH_KEY = 'aces-gallery-auth';
 const PASSWORD = GALLERY_CONFIG.PASSWORD;
+const ADMIN_PASSWORD = GALLERY_CONFIG.ADMIN_PASSWORD;
+let isAdmin = false;
 
 function loadData() {
   try {
@@ -344,11 +346,19 @@ function showToast(message, type = 'info') {
 // AUTH
 // ============================================================
 function checkAuth() {
-  if (localStorage.getItem(AUTH_KEY) === PASSWORD) showApp();
+  const stored = localStorage.getItem(AUTH_KEY);
+  if (stored === ADMIN_PASSWORD) { isAdmin = true; showApp(); }
+  else if (stored === PASSWORD) { isAdmin = false; showApp(); }
 }
 
 function attemptLogin() {
-  if (document.getElementById('gatePw').value === PASSWORD) {
+  const pw = document.getElementById('gatePw').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    localStorage.setItem(AUTH_KEY, ADMIN_PASSWORD);
+    showApp();
+  } else if (pw === PASSWORD) {
+    isAdmin = false;
     localStorage.setItem(AUTH_KEY, PASSWORD);
     showApp();
   } else {
@@ -361,6 +371,10 @@ function attemptLogin() {
 function showApp() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').classList.add('active');
+  // Hide admin-only buttons for members
+  if (!isAdmin) {
+    document.getElementById('newEventBtn').style.display = 'none';
+  }
   renderEvents();
 }
 
@@ -473,11 +487,11 @@ function renderMasonry() {
     
     item.innerHTML = `
       <img src="${photoUrl}" alt="" loading="lazy" onload="this.classList.add('loaded')">
-      <button class="set-cover" title="Set as cover">★ Cover</button>
-      <button class="delete-photo" title="Remove photo" data-index="${i}">&times;</button>
+      ${isAdmin ? '<button class="set-cover" title="Set as cover">★ Cover</button>' : ''}
+      ${isAdmin ? `<button class="delete-photo" title="Remove photo" data-index="${i}">&times;</button>` : ''}
     `;
     item.querySelector('img').addEventListener('click', () => openLightbox(i));
-    item.querySelector('.set-cover').addEventListener('click', async (e) => {
+    if (isAdmin && item.querySelector('.set-cover')) item.querySelector('.set-cover').addEventListener('click', async (e) => {
       e.stopPropagation();
       currentEvent.cover = photoUrl;
       saveData(galleryData);
@@ -488,7 +502,7 @@ function renderMasonry() {
       });
       showToast('Cover photo updated', 'success');
     });
-    item.querySelector('.delete-photo').addEventListener('click', async (e) => {
+    if (isAdmin && item.querySelector('.delete-photo')) item.querySelector('.delete-photo').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm('Remove this photo?')) {
         try {
