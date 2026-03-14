@@ -101,6 +101,8 @@ img { display:block; }
 .masonry-item:hover img { transform:scale(1.02); }
 .masonry-item .delete-photo { position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); border:none; color:#ef4444; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:14px; display:none; align-items:center; justify-content:center; z-index:5; }
 .masonry-item:hover .delete-photo { display:flex; }
+.masonry-item .set-cover { position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.6); border:none; color:#fff; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; display:none; align-items:center; z-index:5; font-family:inherit; }
+.masonry-item:hover .set-cover { display:flex; }
 
 /* ===== LIGHTBOX ===== */
 .lightbox { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; }
@@ -471,9 +473,21 @@ function renderMasonry() {
     
     item.innerHTML = `
       <img src="${photoUrl}" alt="" loading="lazy" onload="this.classList.add('loaded')">
+      <button class="set-cover" title="Set as cover">★ Cover</button>
       <button class="delete-photo" title="Remove photo" data-index="${i}">&times;</button>
     `;
     item.querySelector('img').addEventListener('click', () => openLightbox(i));
+    item.querySelector('.set-cover').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      currentEvent.cover = photoUrl;
+      saveData(galleryData);
+      await r2Storage.saveMetadata(currentEvent.id, {
+        name: currentEvent.name, date: currentEvent.date, city: currentEvent.city,
+        host: currentEvent.host, photographer: currentEvent.photographer,
+        cover: currentEvent.cover, photoCount: currentEvent.photos.length, photos: currentEvent.photos
+      });
+      showToast('Cover photo updated', 'success');
+    });
     item.querySelector('.delete-photo').addEventListener('click', async (e) => {
       e.stopPropagation();
       if (confirm('Remove this photo?')) {
