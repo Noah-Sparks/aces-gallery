@@ -332,6 +332,44 @@ function saveData(data) {
 
 let galleryData = loadData();
 
+// Sync events from R2 on load
+async function syncFromR2() {
+  try {
+    const response = await fetch(`${GALLERY_CONFIG.WORKER_URL}/events`);
+    if (!response.ok) return;
+    const data = await response.json();
+    if (!data.events || data.events.length === 0) return;
+    
+    // Merge R2 events into local data
+    const localIds = new Set(galleryData.events.map(e => e.id));
+    let changed = false;
+    
+    for (const event of data.events) {
+      if (!localIds.has(event.id)) {
+        // New event from R2 not in localStorage
+        galleryData.events.push(event);
+        changed = true;
+      } else {
+        // Update existing event with R2 photo data if local has fewer/no photos
+        const local = galleryData.events.find(e => e.id === event.id);
+        if (event.photos && (!local.photos || local.photos.length < event.photos.length)) {
+          local.photos = event.photos;
+          local.cover = event.cover || local.cover;
+          local.photoCount = event.photoCount || event.photos.length;
+          changed = true;
+        }
+      }
+    }
+    
+    if (changed) {
+      saveData(galleryData);
+      renderEvents();
+    }
+  } catch (e) {
+    console.log('R2 sync skipped:', e.message);
+  }
+}
+
 // ============================================================
 // TOAST
 // ============================================================
@@ -378,6 +416,7 @@ function showApp() {
     document.getElementById('newEventBtn').style.display = 'none';
   }
   renderEvents();
+  syncFromR2(); // Fetch real photos from R2
 }
 
 document.getElementById('gateBtn').addEventListener('click', attemptLogin);
