@@ -340,6 +340,9 @@ async function syncFromR2() {
     const data = await response.json();
     if (!data.events || data.events.length === 0) return;
     
+    // Filter out Insiders events (they have insiders-events/ prefix)
+    data.events = data.events.filter(e => !e.id || !e.id.startsWith('insiders-events/'));
+    
     // Merge R2 events into local data
     const localIds = new Set(galleryData.events.map(e => e.id));
     let changed = false;
