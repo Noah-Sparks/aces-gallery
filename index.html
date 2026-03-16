@@ -437,15 +437,22 @@ function formatDate(dateStr) {
 }
 
 function cityTag(city) {
-  if (city === 'San Francisco') return 'SF';
-  if (city === 'New York') return 'NY';
+  if (city === 'San Francisco' || city === 'SF') return 'SF';
+  if (city === 'New York' || city === 'NY') return 'NY';
   return 'LA';
+}
+
+function normalizeCity(city) {
+  const tag = cityTag(city);
+  if (tag === 'SF') return 'San Francisco';
+  if (tag === 'NY') return 'New York';
+  return 'Los Angeles';
 }
 
 function renderEvents() {
   const grid = document.getElementById('eventsGrid');
   const events = galleryData.events
-    .filter(e => currentFilter === 'all' || e.city === currentFilter)
+    .filter(e => currentFilter === 'all' || normalizeCity(e.city) === currentFilter)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   grid.innerHTML = '';
