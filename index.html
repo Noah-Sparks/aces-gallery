@@ -713,6 +713,12 @@ document.getElementById('createEventBtn').addEventListener('click', () => {
 
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '') + '-' + date;
 
+  // Prevent duplicate events
+  if (galleryData.events.some(e => e.id === id)) {
+    showToast('Event already exists', 'error');
+    return;
+  }
+
   const event = { id, name, date, city, host, photographer, cover: '', photos: [] };
 
   if (coverFile) {
