@@ -223,6 +223,7 @@ img { display:block; }
       </div>
       <div class="detail-title" id="detailTitle"></div>
       <div class="detail-meta" id="detailMeta"></div>
+      <button class="admin-btn" id="editEventBtn" style="display:none;margin-bottom:8px;">✎ Edit Event</button>
       <button class="upload-btn" id="uploadBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
         Upload Photos
@@ -302,6 +303,39 @@ img { display:block; }
     <button class="form-submit" id="uploadSubmitBtn" style="display:none">Upload <span id="uploadCount"></span> Photos</button>
   </div>
 </div>
+<!-- EDIT EVENT MODAL -->
+<div class="modal-overlay" id="editEventModal">
+  <div class="modal">
+    <button class="modal-close" id="closeEditEvent">&times;</button>
+    <div class="modal-title">Edit Event</div>
+    <div class="form-group">
+      <label class="form-label">Event Name</label>
+      <input class="form-input" id="editEventName" placeholder="e.g. March Dinner">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" id="editEventDate" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">City</label>
+      <select class="form-select" id="editEventCity">
+        <option value="New York">New York</option>
+        <option value="San Francisco">San Francisco</option>
+        <option value="Los Angeles">Los Angeles</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Host</label>
+      <input class="form-input" id="editEventHost" placeholder="e.g. Tom McLeod">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Photographer (optional)</label>
+      <input class="form-input" id="editEventPhotographer" placeholder="e.g. Nova">
+    </div>
+    <button class="form-submit" id="saveEditEventBtn">Save Changes</button>
+  </div>
+</div>
+
 
 <script>
 // ============================================================
@@ -519,10 +553,46 @@ function showEvent(eventId) {
     <span>${currentEvent.photos.length} photos</span>
   `;
 
+  if (isAdmin) document.getElementById('editEventBtn').style.display = 'inline-flex';
+  else document.getElementById('editEventBtn').style.display = 'none';
+
   renderMasonry();
   window.scrollTo(0, 0);
   history.pushState({ view: 'event', id: eventId }, '');
 }
+
+// Edit Event
+document.getElementById('editEventBtn').addEventListener('click', () => {
+  if (!currentEvent) return;
+  document.getElementById('editEventName').value = currentEvent.name || '';
+  document.getElementById('editEventDate').value = currentEvent.date || '';
+  document.getElementById('editEventCity').value = normalizeCity(currentEvent.city || 'New York');
+  document.getElementById('editEventHost').value = currentEvent.host || '';
+  document.getElementById('editEventPhotographer').value = currentEvent.photographer || '';
+  document.getElementById('editEventModal').classList.add('active');
+});
+document.getElementById('closeEditEvent').addEventListener('click', () => {
+  document.getElementById('editEventModal').classList.remove('active');
+});
+document.getElementById('saveEditEventBtn').addEventListener('click', async () => {
+  if (!currentEvent) return;
+  currentEvent.name = document.getElementById('editEventName').value.trim();
+  currentEvent.date = document.getElementById('editEventDate').value;
+  currentEvent.city = document.getElementById('editEventCity').value;
+  currentEvent.host = document.getElementById('editEventHost').value.trim();
+  currentEvent.photographer = document.getElementById('editEventPhotographer').value.trim();
+  saveData(galleryData);
+  try {
+    await r2Storage.saveMetadata(currentEvent.id, {
+      name: currentEvent.name, date: currentEvent.date, city: currentEvent.city,
+      host: currentEvent.host, photographer: currentEvent.photographer,
+      cover: currentEvent.cover, photoCount: currentEvent.photos.length, photos: currentEvent.photos
+    });
+    showToast('Event updated', 'success');
+  } catch (e) { showToast('Saved locally, R2 sync failed', 'warning'); }
+  document.getElementById('editEventModal').classList.remove('active');
+  showEvent(currentEvent.id);
+});
 
 function renderMasonry() {
   const masonry = document.getElementById('masonry');
