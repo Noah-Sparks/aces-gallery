@@ -708,6 +708,9 @@ let lbIndex = 0;
 function openLightbox(index) {
   if (!currentEvent) return;
   lbIndex = index;
+  const evtName = currentEvent.name || currentEvent.id || '';
+  const photoUrl = currentEvent.photos && currentEvent.photos[index] ? currentEvent.photos[index] : '';
+  trackEvent('photo_view', { photo_url: photoUrl, photo_event: evtName });
   updateLightbox();
   document.getElementById('lightbox').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -1026,6 +1029,44 @@ async function compressImage(file, maxDim = 2000, quality = 0.8) {
     reader.readAsDataURL(file);
   });
 }
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+const ANALYTICS_URL = 'https://cfnuhjfceceojfykznnm.supabase.co/rest/v1/gallery_analytics';
+const ANALYTICS_KEY = 'sb_publishable_oefauf4bsK7QBNecphPI9w_AGrjl7UK';
+
+function trackEvent(eventType, extra = {}) {
+  const payload = {
+    event_type: eventType,
+    gallery: 'aces',
+    photo_url: extra.photo_url || null,
+    photo_event: extra.photo_event || null,
+    user_agent: navigator.userAgent,
+    referrer: document.referrer || null,
+    screen_width: window.innerWidth
+  };
+  fetch(ANALYTICS_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': ANALYTICS_KEY,
+      'Authorization': 'Bearer ' + ANALYTICS_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
+
+trackEvent('page_view');
+
+document.addEventListener('click', function(e) {
+  const dlBtn = e.target.closest('.download-photo, .lightbox-download');
+  if (dlBtn) {
+    const evtName = currentEvent ? currentEvent.name || currentEvent.id : '';
+    trackEvent('photo_download', { photo_event: evtName });
+  }
+});
 
 // ============================================================
 // INIT
