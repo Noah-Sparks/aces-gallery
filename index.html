@@ -735,14 +735,26 @@ function lbNext() { if (!currentEvent) return; lbIndex = (lbIndex + 1) % current
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 document.getElementById('lbPrev').addEventListener('click', lbPrev);
 document.getElementById('lbNext').addEventListener('click', lbNext);
-document.getElementById('lbDownload').addEventListener('click', () => {
+document.getElementById('lbDownload').addEventListener('click', async () => {
   if (!currentEvent) return;
   const photo = currentEvent.photos[lbIndex];
   const photoUrl = photo.url || photo.data || '';
-  const a = document.createElement('a');
-  a.href = photoUrl;
-  a.download = `aces-${currentEvent.id}-${lbIndex + 1}.jpg`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  const filename = `aces-${currentEvent.id}-${lbIndex + 1}.jpg`;
+  try {
+    const resp = await fetch(photoUrl);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    const a = document.createElement('a');
+    a.href = photoUrl;
+    a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
 });
 document.getElementById('lightbox').addEventListener('click', e => {
   if (e.target === document.getElementById('lightbox')) closeLightbox();
